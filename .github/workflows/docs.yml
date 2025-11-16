@@ -1,0 +1,61 @@
+name: Generate Terraform Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'modules/**/*.tf'
+      - '.github/workflows/docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  docs:
+    name: Update Module Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate terraform-docs for VPC module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: modules/vpc
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          git-commit-message: "docs: auto-update VPC module documentation"
+
+      - name: Generate terraform-docs for EKS module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: modules/eks
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          git-commit-message: "docs: auto-update EKS module documentation"
+
+      - name: Generate terraform-docs for ALB module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: modules/alb
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          git-commit-message: "docs: auto-update ALB module documentation"
+
+      - name: Generate terraform-docs for EC2 module
+        uses: terraform-docs/gh-actions@v1.1.0
+        with:
+          working-dir: modules/ec2
+          output-file: README.md
+          output-method: inject
+          git-push: true
+          git-commit-message: "docs: auto-update EC2 module documentation"

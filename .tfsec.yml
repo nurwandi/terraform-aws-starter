@@ -1,0 +1,18 @@
+# TFSec configuration
+# https://aquasecurity.github.io/tfsec/
+
+severity_overrides:
+  # Set minimum severity (CRITICAL, HIGH, MEDIUM, LOW)
+  minimum_severity: MEDIUM
+
+exclude:
+  # Exclude specific checks (example)
+  # - aws-vpc-no-public-ingress-sgr
+  # - aws-ec2-no-public-ip-subnet
+
+# Custom checks can be added here
+# checks:
+#   - code: CUSTOM-001
+#     description: Custom security check
+#     impact: HIGH
+#     resolution: Apply custom fix
