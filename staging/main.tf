@@ -13,6 +13,7 @@ terraform {
 locals {
   environment = "staging"
   region      = "ap-southeast-3" # ADJUST
+  profile     = "sandbox" # ADJUST
 
   # Global VPC ID: Use existing VPC if specified, otherwise use VPC from module
   # If you want to use existing VPC: set vpc_id variable in terraform.tfvars
@@ -24,7 +25,7 @@ locals {
 
 # ADJUST
 provider "aws" {
-  profile = ""
+  profile = local.profile
   region  = local.region
 
   default_tags {
@@ -143,7 +144,7 @@ module "ec2" {
   environment = local.environment
   name        = var.ec2_name
   vpc_id      = local.vpc_id
-  subnet_id   = var.ec2_subnet_id  # Choose specific subnet
+  subnet_id   = var.ec2_subnet_id != "" ? var.ec2_subnet_id : local.private_subnet_ids[0]
 
   # Instance configuration
   instance_type = var.ec2_instance_type
