@@ -1,7 +1,7 @@
 name: Generate Terraform Docs
 
 on:
-  push:
+  pull_request:
     branches: [main]
     paths:
       - 'modules/**/*.tf'
@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate terraform-docs for VPC module

@@ -3,16 +3,8 @@ name: Terraform CI
 on:
   pull_request:
     branches: [main]
-    paths:
-      - '**.tf'
-      - '**.tfvars'
-      - '.github/workflows/ci.yml'
   push:
     branches: [main]
-    paths:
-      - '**.tf'
-      - '**.tfvars'
-      - '.github/workflows/ci.yml'
 
 jobs:
   terraform-checks:
