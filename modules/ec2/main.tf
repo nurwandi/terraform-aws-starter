@@ -80,8 +80,8 @@ resource "aws_vpc_security_group_ingress_rule" "this" {
 
   security_group_id = aws_security_group.instance[0].id
   description       = each.value.description
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
+  from_port         = each.value.protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.protocol == "-1" ? null : each.value.to_port
   ip_protocol       = each.value.protocol
   cidr_ipv4         = each.value.cidr_block
 }
@@ -92,8 +92,8 @@ resource "aws_vpc_security_group_egress_rule" "this" {
 
   security_group_id = aws_security_group.instance[0].id
   description       = each.value.description
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
+  from_port         = each.value.protocol == "-1" ? null : each.value.from_port
+  to_port           = each.value.protocol == "-1" ? null : each.value.to_port
   ip_protocol       = each.value.protocol
   cidr_ipv4         = each.value.cidr_block
 }
@@ -192,14 +192,6 @@ resource "aws_instance" "main" {
     throughput            = var.root_volume_type == "gp3" ? var.root_volume_throughput : null
     encrypted             = var.root_volume_encrypted
     delete_on_termination = true
-
-    tags = merge(
-      {
-        Name        = "${var.name}-root-volume"
-        Environment = var.environment
-      },
-      var.tags
-    )
   }
 
   # EBS optimization

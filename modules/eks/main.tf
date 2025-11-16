@@ -106,19 +106,22 @@ resource "aws_eks_cluster" "main" {
   enabled_cluster_log_types = var.enabled_cluster_log_types
 
   # EKS Auto Mode configuration
+  # All three configs must be explicitly set when using Auto Mode
   compute_config {
     enabled       = var.auto_mode_enabled
     node_pools    = var.auto_mode_enabled ? ["general-purpose"] : []
     node_role_arn = var.auto_mode_enabled ? aws_iam_role.node[0].arn : null
   }
 
-  # Auto Mode requires specific storage config
-  dynamic "storage_config" {
-    for_each = var.auto_mode_enabled ? [1] : []
-    content {
-      block_storage {
-        enabled = true
-      }
+  storage_config {
+    block_storage {
+      enabled = var.auto_mode_enabled
+    }
+  }
+
+  kubernetes_network_config {
+    elastic_load_balancing {
+      enabled = var.auto_mode_enabled
     }
   }
 

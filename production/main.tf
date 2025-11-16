@@ -143,7 +143,7 @@ module "ec2" {
   environment = local.environment
   name        = var.ec2_name
   vpc_id      = local.vpc_id
-  subnet_id   = var.ec2_subnet_id  # Choose specific subnet
+  subnet_id   = var.ec2_subnet_id != "" ? var.ec2_subnet_id : local.private_subnet_ids[0]
 
   # Instance configuration
   instance_type = var.ec2_instance_type
