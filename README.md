@@ -2,6 +2,7 @@
 
 Production-ready Terraform boilerplate for AWS with VPC, EKS, ALB, and EC2 modules.
 
+
 [![Terraform](https://img.shields.io/badge/Terraform-1.0+-623CE4?logo=terraform)](https://www.terraform.io/)
 [![AWS Provider](https://img.shields.io/badge/AWS%20Provider-5.0+-FF9900?logo=amazon-aws)](https://registry.terraform.io/providers/hashicorp/aws/latest)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
