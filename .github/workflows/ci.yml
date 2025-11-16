@@ -6,6 +6,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   terraform-checks:
     name: Terraform Quality Checks
@@ -92,6 +97,7 @@ jobs:
         with:
           script: |
             const formatStatus = '${{ steps.fmt.outcome }}';
+            const validateStatus = '${{ steps.validate_modules.outcome }}';
             const tflintStatus = '${{ steps.tflint.outcome }}';
             const tfsecStatus = '${{ steps.tfsec.outcome }}';
 
@@ -99,7 +105,7 @@ jobs:
             comment += `| Check | Status |\n`;
             comment += `|-------|--------|\n`;
             comment += `| 🎨 Format | ${formatStatus === 'success' ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| ✅ Validation | ${{ steps.validate_modules.outcome === 'success' ? '✅ Passed' : '❌ Failed' }} |\n`;
+            comment += `| ✅ Validation | ${validateStatus === 'success' ? '✅ Passed' : '❌ Failed'} |\n`;
             comment += `| 🔍 TFLint | ${tflintStatus === 'success' ? '✅ Passed' : '⚠️ Warnings'} |\n`;
             comment += `| 🔒 TFSec | ${tfsecStatus === 'success' ? '✅ Passed' : '⚠️ Issues Found'} |\n`;
 

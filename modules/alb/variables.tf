@@ -245,10 +245,10 @@ variable "listener_rules" {
     priority = number
     listener = string # "http" or "https"
     actions = list(object({
-      type              = string # forward, redirect, fixed-response
-      target_group_key  = string # Key from target_groups map (for forward action)
-      redirect_protocol = string # HTTP or HTTPS (for redirect action)
-      redirect_status   = string # HTTP_301 or HTTP_302 (for redirect action)
+      type                        = string # forward, redirect, fixed-response
+      target_group_key            = string # Key from target_groups map (for forward action)
+      redirect_protocol           = string # HTTP or HTTPS (for redirect action)
+      redirect_status             = string # HTTP_301 or HTTP_302 (for redirect action)
       fixed_response_content_type = string # text/plain, text/css, text/html, application/json (for fixed-response)
       fixed_response_status_code  = string # HTTP status code (for fixed-response)
       fixed_response_message      = string # Response body (for fixed-response)

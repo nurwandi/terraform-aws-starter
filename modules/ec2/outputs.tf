@@ -87,14 +87,14 @@ output "iam_role_arn" {
 
 output "iam_instance_profile_name" {
   description = "IAM instance profile name"
-  value       = var.iam_instance_profile_arn != "" ? var.iam_instance_profile_arn : (
+  value = var.iam_instance_profile_arn != "" ? var.iam_instance_profile_arn : (
     var.enable_ssm ? aws_iam_instance_profile.instance[0].name : null
   )
 }
 
 output "iam_instance_profile_arn" {
   description = "IAM instance profile ARN"
-  value       = var.iam_instance_profile_arn != "" ? var.iam_instance_profile_arn : (
+  value = var.iam_instance_profile_arn != "" ? var.iam_instance_profile_arn : (
     var.enable_ssm ? aws_iam_instance_profile.instance[0].arn : null
   )
 }

@@ -93,10 +93,10 @@ output "node_groups" {
   description = "Map of node group attributes"
   value = {
     for k, v in aws_eks_node_group.main : k => {
-      id         = v.id
-      arn        = v.arn
-      status     = v.status
-      version    = v.version
+      id              = v.id
+      arn             = v.arn
+      status          = v.status
+      version         = v.version
       node_group_name = v.node_group_name
     }
   }

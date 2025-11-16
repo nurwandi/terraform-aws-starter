@@ -282,9 +282,9 @@ resource "aws_eks_node_group" "main" {
 resource "aws_eks_addon" "vpc_cni" {
   count = var.enable_vpc_cni ? 1 : 0
 
-  cluster_name             = aws_eks_cluster.main.name
-  addon_name               = "vpc-cni"
-  addon_version            = data.aws_eks_addon_version.vpc_cni[0].version
+  cluster_name                = aws_eks_cluster.main.name
+  addon_name                  = "vpc-cni"
+  addon_version               = data.aws_eks_addon_version.vpc_cni[0].version
   resolve_conflicts_on_update = "PRESERVE"
 
   tags = merge(
@@ -308,9 +308,9 @@ data "aws_eks_addon_version" "vpc_cni" {
 resource "aws_eks_addon" "coredns" {
   count = var.enable_coredns ? 1 : 0
 
-  cluster_name             = aws_eks_cluster.main.name
-  addon_name               = "coredns"
-  addon_version            = data.aws_eks_addon_version.coredns[0].version
+  cluster_name                = aws_eks_cluster.main.name
+  addon_name                  = "coredns"
+  addon_version               = data.aws_eks_addon_version.coredns[0].version
   resolve_conflicts_on_update = "PRESERVE"
 
   tags = merge(
@@ -334,9 +334,9 @@ data "aws_eks_addon_version" "coredns" {
 resource "aws_eks_addon" "kube_proxy" {
   count = var.enable_kube_proxy ? 1 : 0
 
-  cluster_name             = aws_eks_cluster.main.name
-  addon_name               = "kube-proxy"
-  addon_version            = data.aws_eks_addon_version.kube_proxy[0].version
+  cluster_name                = aws_eks_cluster.main.name
+  addon_name                  = "kube-proxy"
+  addon_version               = data.aws_eks_addon_version.kube_proxy[0].version
   resolve_conflicts_on_update = "PRESERVE"
 
   tags = merge(
@@ -360,11 +360,11 @@ data "aws_eks_addon_version" "kube_proxy" {
 resource "aws_eks_addon" "ebs_csi_driver" {
   count = var.enable_ebs_csi_driver ? 1 : 0
 
-  cluster_name             = aws_eks_cluster.main.name
-  addon_name               = "aws-ebs-csi-driver"
-  addon_version            = data.aws_eks_addon_version.ebs_csi_driver[0].version
+  cluster_name                = aws_eks_cluster.main.name
+  addon_name                  = "aws-ebs-csi-driver"
+  addon_version               = data.aws_eks_addon_version.ebs_csi_driver[0].version
   resolve_conflicts_on_update = "PRESERVE"
-  service_account_role_arn = aws_iam_role.ebs_csi_driver[0].arn
+  service_account_role_arn    = aws_iam_role.ebs_csi_driver[0].arn
 
   tags = merge(
     {

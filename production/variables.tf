@@ -364,13 +364,13 @@ variable "alb_listener_rules" {
     priority = number
     listener = string
     actions = list(object({
-      type                            = string
-      target_group_key                = string
-      redirect_protocol               = string
-      redirect_status                 = string
-      fixed_response_content_type     = string
-      fixed_response_status_code      = string
-      fixed_response_message          = string
+      type                        = string
+      target_group_key            = string
+      redirect_protocol           = string
+      redirect_status             = string
+      fixed_response_content_type = string
+      fixed_response_status_code  = string
+      fixed_response_message      = string
     }))
     conditions = list(object({
       type   = string

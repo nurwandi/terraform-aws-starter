@@ -1,37 +1,37 @@
 ########## Global VPC Configuration ##########
 ###############################################
 
-vpc_id             = ""  # Leave empty to create new VPC, or specify existing VPC ID
-public_subnet_ids  = []  # Leave empty when creating new VPC
-private_subnet_ids = []  # Leave empty when creating new VPC
+vpc_id             = "" # Leave empty to create new VPC, or specify existing VPC ID
+public_subnet_ids  = [] # Leave empty when creating new VPC
+private_subnet_ids = [] # Leave empty when creating new VPC
 
 ########## VPC Module Configuration ##########
 ##############################################
 
-vpc_cidr_block       = "10.0.0.0/16"  # CHANGE: Your VPC CIDR
-availability_zones   = ["ap-southeast-3a", "ap-southeast-3b", "ap-southeast-3c"]  # CHANGE: Match your region
+vpc_cidr_block       = "10.0.0.0/16"                                             # CHANGE: Your VPC CIDR
+availability_zones   = ["ap-southeast-3a", "ap-southeast-3b", "ap-southeast-3c"] # CHANGE: Match your region
 public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
 private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
 enable_dns_support   = true
 enable_dns_hostnames = true
-single_nat_gateway   = true  # true = cost-effective, false = HA
+single_nat_gateway   = true # true = cost-effective, false = HA
 
-enable_flow_logs         = false  # OPTIONAL: Enable for compliance/auditing
+enable_flow_logs         = false # OPTIONAL: Enable for compliance/auditing
 flow_logs_destination    = "cloudwatch"
 flow_logs_retention_days = 7
-flow_logs_s3_bucket_arn  = ""  # REQUIRED if flow_logs_destination = "s3"
+flow_logs_s3_bucket_arn  = "" # REQUIRED if flow_logs_destination = "s3"
 
 ########## EKS Configuration ##########
 #######################################
 
-cluster_name                         = "staging-eks"  # CHANGE: Your cluster name
+cluster_name                         = "staging-eks" # CHANGE: Your cluster name
 cluster_version                      = "1.31"
-auto_mode_enabled                    = false  # true = EKS Auto Mode, false = Managed Node Groups
+auto_mode_enabled                    = false # true = EKS Auto Mode, false = Managed Node Groups
 cluster_endpoint_private_access      = true
-cluster_endpoint_public_access       = true  # CHANGE: false for production security
-cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]  # CHANGE: Restrict to your IP for security
+cluster_endpoint_public_access       = true          # CHANGE: false for production security
+cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"] # CHANGE: Restrict to your IP for security
 enable_cluster_encryption            = true
-enabled_cluster_log_types            = []  # OPTIONAL: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+enabled_cluster_log_types            = [] # OPTIONAL: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 cluster_log_retention_days           = 7
 
 node_groups = {
@@ -40,7 +40,7 @@ node_groups = {
     min_size       = 1
     max_size       = 5
     instance_types = ["t3.medium"]
-    capacity_type  = "ON_DEMAND"  # or "SPOT" for cost savings
+    capacity_type  = "ON_DEMAND" # or "SPOT" for cost savings
     disk_size      = 20
     labels = {
       role = "general"
@@ -57,23 +57,23 @@ enable_ebs_csi_driver = true
 ########## ALB Configuration ##########
 #######################################
 
-alb_name                       = "staging-alb"  # CHANGE: Your ALB name
+alb_name                       = "staging-alb" # CHANGE: Your ALB name
 alb_internal                   = false
-alb_enable_deletion_protection = false  # CHANGE: true for production
-alb_allowed_cidr_blocks        = ["0.0.0.0/0"]  # CHANGE: Restrict for security
+alb_enable_deletion_protection = false         # CHANGE: true for production
+alb_allowed_cidr_blocks        = ["0.0.0.0/0"] # CHANGE: Restrict for security
 
-alb_enable_access_logs = false  # OPTIONAL: Enable for production compliance
-alb_access_logs_bucket = ""     # REQUIRED if alb_enable_access_logs = true
+alb_enable_access_logs = false # OPTIONAL: Enable for production compliance
+alb_access_logs_bucket = ""    # REQUIRED if alb_enable_access_logs = true
 alb_access_logs_prefix = "alb-logs"
 
-alb_enable_waf      = false  # OPTIONAL: Enable for production security
-alb_waf_web_acl_arn = ""     # REQUIRED if alb_enable_waf = true
+alb_enable_waf      = false # OPTIONAL: Enable for production security
+alb_waf_web_acl_arn = ""    # REQUIRED if alb_enable_waf = true
 
 alb_enable_http_listener   = true
-alb_http_redirect_to_https = false  # CHANGE: true if using HTTPS
+alb_http_redirect_to_https = false # CHANGE: true if using HTTPS
 
-alb_enable_https_listener = false  # OPTIONAL: Enable if you have SSL certificate
-alb_ssl_certificate_arn   = ""     # REQUIRED if alb_enable_https_listener = true
+alb_enable_https_listener = false # OPTIONAL: Enable if you have SSL certificate
+alb_ssl_certificate_arn   = ""    # REQUIRED if alb_enable_https_listener = true
 alb_ssl_policy            = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
 alb_target_groups = {
@@ -101,15 +101,15 @@ alb_target_groups = {
   }
 }
 
-alb_listener_rules = {}  # OPTIONAL: Add path-based or host-based routing
+alb_listener_rules = {} # OPTIONAL: Add path-based or host-based routing
 
 ########## EC2 Configuration ##########
 #######################################
 
-ec2_name          = "staging-bastion"  # CHANGE: Your instance name
-ec2_subnet_id     = ""  # CHANGE AFTER VPC: Use output from module.vpc.private_subnet_ids[0]
+ec2_name          = "staging-bastion" # CHANGE: Your instance name
+ec2_subnet_id     = ""                # CHANGE AFTER VPC: Use output from module.vpc.private_subnet_ids[0]
 ec2_instance_type = "t3.micro"
-ec2_key_name      = null  # OPTIONAL: Specify key pair for SSH, or keep null for SSM-only
+ec2_key_name      = null # OPTIONAL: Specify key pair for SSH, or keep null for SSM-only
 
 ec2_enable_ssm            = true
 ec2_create_security_group = true
@@ -120,7 +120,7 @@ ec2_security_group_rules = {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]  # SSH from VPC CIDR
+    cidr_blocks = ["10.0.0.0/16"] # SSH from VPC CIDR
     description = "Allow SSH from VPC"
   }
   ssh_external = {
@@ -128,7 +128,7 @@ ec2_security_group_rules = {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # CHANGE: Restrict to your IP for security
+    cidr_blocks = ["0.0.0.0/0"] # CHANGE: Restrict to your IP for security
     description = "Allow SSH from external"
   }
   egress_all = {

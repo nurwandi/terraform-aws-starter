@@ -1,5 +1,5 @@
 config {
-  module = true
+  call_module_type = "all"  # Changed from "module = true" in v0.54.0
   force = false
 }
 

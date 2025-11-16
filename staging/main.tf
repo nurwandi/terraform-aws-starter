@@ -13,14 +13,14 @@ terraform {
 locals {
   environment = "staging"
   region      = "ap-southeast-3" # ADJUST
-  profile     = "sandbox" # ADJUST
+  profile     = "sandbox"        # ADJUST
 
   # Global VPC ID: Use existing VPC if specified, otherwise use VPC from module
   # If you want to use existing VPC: set vpc_id variable in terraform.tfvars
   # If you want to create new VPC: leave vpc_id empty, module.vpc will be used
-  vpc_id              = var.vpc_id != "" ? var.vpc_id : module.vpc.vpc_id
-  public_subnet_ids   = var.vpc_id != "" ? var.public_subnet_ids : module.vpc.public_subnet_ids
-  private_subnet_ids  = var.vpc_id != "" ? var.private_subnet_ids : module.vpc.private_subnet_ids
+  vpc_id             = var.vpc_id != "" ? var.vpc_id : module.vpc.vpc_id
+  public_subnet_ids  = var.vpc_id != "" ? var.public_subnet_ids : module.vpc.public_subnet_ids
+  private_subnet_ids = var.vpc_id != "" ? var.private_subnet_ids : module.vpc.private_subnet_ids
 }
 
 # ADJUST
@@ -80,17 +80,17 @@ module "eks" {
   enable_cluster_encryption            = var.enable_cluster_encryption
 
   # Logging configuration
-  enabled_cluster_log_types = var.enabled_cluster_log_types
+  enabled_cluster_log_types  = var.enabled_cluster_log_types
   cluster_log_retention_days = var.cluster_log_retention_days
 
   # Node groups (ignored if auto_mode_enabled = true)
   node_groups = var.node_groups
 
   # Add-ons
-  enable_vpc_cni         = var.enable_vpc_cni
-  enable_coredns         = var.enable_coredns
-  enable_kube_proxy      = var.enable_kube_proxy
-  enable_ebs_csi_driver  = var.enable_ebs_csi_driver
+  enable_vpc_cni        = var.enable_vpc_cni
+  enable_coredns        = var.enable_coredns
+  enable_kube_proxy     = var.enable_kube_proxy
+  enable_ebs_csi_driver = var.enable_ebs_csi_driver
 }
 
 ########## ALB (Application Load Balancer) ##########
@@ -114,20 +114,20 @@ module "alb" {
   allowed_cidr_blocks = var.alb_allowed_cidr_blocks
 
   # Access Logs
-  enable_access_logs  = var.alb_enable_access_logs
-  access_logs_bucket  = var.alb_access_logs_bucket
-  access_logs_prefix  = var.alb_access_logs_prefix
+  enable_access_logs = var.alb_enable_access_logs
+  access_logs_bucket = var.alb_access_logs_bucket
+  access_logs_prefix = var.alb_access_logs_prefix
 
   # WAF
   enable_waf      = var.alb_enable_waf
   waf_web_acl_arn = var.alb_waf_web_acl_arn
 
   # Listeners
-  enable_http_listener    = var.alb_enable_http_listener
-  http_redirect_to_https  = var.alb_http_redirect_to_https
-  enable_https_listener   = var.alb_enable_https_listener
-  ssl_certificate_arn     = var.alb_ssl_certificate_arn
-  ssl_policy              = var.alb_ssl_policy
+  enable_http_listener   = var.alb_enable_http_listener
+  http_redirect_to_https = var.alb_http_redirect_to_https
+  enable_https_listener  = var.alb_enable_https_listener
+  ssl_certificate_arn    = var.alb_ssl_certificate_arn
+  ssl_policy             = var.alb_ssl_policy
 
   # Target Groups
   target_groups = var.alb_target_groups
@@ -148,7 +148,7 @@ module "ec2" {
 
   # Instance configuration
   instance_type = var.ec2_instance_type
-  key_name      = var.ec2_key_name  # Optional: your existing key pair name
+  key_name      = var.ec2_key_name # Optional: your existing key pair name
 
   # SSM Session Manager (enabled by default)
   enable_ssm = var.ec2_enable_ssm
