@@ -75,6 +75,12 @@ variable "flow_logs_s3_bucket_arn" {
   default     = ""
 }
 
+variable "enable_eic_endpoint" {
+  description = "Enable EC2 Instance Connect Endpoint for secure SSH access without public IPs"
+  type        = bool
+  default     = false
+}
+
 variable "tags" {
   description = "Additional tags for all resources"
   type        = map(string)

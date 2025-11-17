@@ -314,3 +314,53 @@ resource "aws_vpc_endpoint" "dynamodb" {
     var.tags
   )
 }
+
+########## EC2 Instance Connect Endpoint ##########
+####################################################
+
+# Security group for EIC Endpoint
+resource "aws_security_group" "eic_endpoint" {
+  count = var.enable_eic_endpoint ? 1 : 0
+
+  name        = "${var.environment}-eic-endpoint-sg"
+  description = "Security group for EC2 Instance Connect Endpoint"
+  vpc_id      = aws_vpc.main.id
+
+  tags = merge(
+    {
+      Name        = "${var.environment}-eic-endpoint-sg"
+      Environment = var.environment
+    },
+    var.tags
+  )
+}
+
+# Allow SSH outbound to instances in VPC
+resource "aws_vpc_security_group_egress_rule" "eic_endpoint_ssh" {
+  count = var.enable_eic_endpoint ? 1 : 0
+
+  security_group_id = aws_security_group.eic_endpoint[0].id
+  description       = "Allow SSH to instances in VPC"
+  from_port         = 22
+  to_port           = 22
+  ip_protocol       = "tcp"
+  cidr_ipv4         = var.vpc_cidr_block
+}
+
+# EC2 Instance Connect Endpoint
+resource "aws_ec2_instance_connect_endpoint" "main" {
+  count = var.enable_eic_endpoint ? 1 : 0
+
+  subnet_id          = aws_subnet.private[0].id
+  security_group_ids = [aws_security_group.eic_endpoint[0].id]
+
+  preserve_client_ip = false
+
+  tags = merge(
+    {
+      Name        = "${var.environment}-eic-endpoint"
+      Environment = var.environment
+    },
+    var.tags
+  )
+}

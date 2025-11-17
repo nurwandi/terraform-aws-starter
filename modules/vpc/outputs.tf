@@ -72,3 +72,13 @@ output "dynamodb_endpoint_id" {
   description = "The ID of the DynamoDB VPC Endpoint"
   value       = aws_vpc_endpoint.dynamodb.id
 }
+
+output "eic_endpoint_id" {
+  description = "The ID of the EC2 Instance Connect Endpoint"
+  value       = var.enable_eic_endpoint ? aws_ec2_instance_connect_endpoint.main[0].id : null
+}
+
+output "eic_endpoint_dns_name" {
+  description = "The DNS name of the EC2 Instance Connect Endpoint"
+  value       = var.enable_eic_endpoint ? aws_ec2_instance_connect_endpoint.main[0].dns_name : null
+}

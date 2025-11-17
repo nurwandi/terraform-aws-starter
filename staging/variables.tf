@@ -89,6 +89,12 @@ variable "flow_logs_s3_bucket_arn" {
   default     = ""
 }
 
+variable "enable_eic_endpoint" {
+  description = "Enable EC2 Instance Connect Endpoint for secure SSH access"
+  type        = bool
+  default     = false
+}
+
 # EKS Configuration
 variable "cluster_name" {
   description = "EKS cluster name"

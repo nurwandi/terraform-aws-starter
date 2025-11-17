@@ -21,6 +21,8 @@ flow_logs_destination    = "cloudwatch"
 flow_logs_retention_days = 7
 flow_logs_s3_bucket_arn  = "" # REQUIRED if flow_logs_destination = "s3"
 
+enable_eic_endpoint = false # OPTIONAL: Enable for secure SSH without bastion/public IPs
+
 ########## EKS Configuration ##########
 #######################################
 
