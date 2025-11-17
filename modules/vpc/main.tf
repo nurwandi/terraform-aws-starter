@@ -1,3 +1,11 @@
+########## Locals ##########
+#############################
+locals {
+  # Extract AZ suffix (a, b, c) from availability zone names
+  # Example: "ap-southeast-3a" -> "a", "us-east-1b" -> "b"
+  az_suffixes = [for az in var.availability_zones : substr(az, -1, 1)]
+}
+
 ########## VPC ##########
 #########################
 resource "aws_vpc" "main" {
@@ -39,7 +47,7 @@ resource "aws_subnet" "public" {
 
   tags = merge(
     {
-      Name        = "${var.environment}-public-subnet-${count.index + 1}"
+      Name        = "${var.environment}-public-subnet-${local.az_suffixes[count.index]}"
       Environment = var.environment
       Type        = "public"
     },
@@ -58,7 +66,7 @@ resource "aws_subnet" "private" {
 
   tags = merge(
     {
-      Name        = "${var.environment}-private-subnet-${count.index + 1}"
+      Name        = "${var.environment}-private-subnet-${local.az_suffixes[count.index]}"
       Environment = var.environment
       Type        = "private"
     },
@@ -74,7 +82,7 @@ resource "aws_eip" "nat" {
 
   tags = merge(
     {
-      Name        = var.single_nat_gateway ? "${var.environment}-nat-eip" : "${var.environment}-nat-eip-${count.index + 1}"
+      Name        = var.single_nat_gateway ? "${var.environment}-nat-eip" : "${var.environment}-nat-eip-${local.az_suffixes[count.index]}"
       Environment = var.environment
     },
     var.tags
@@ -92,7 +100,7 @@ resource "aws_nat_gateway" "main" {
 
   tags = merge(
     {
-      Name        = var.single_nat_gateway ? "${var.environment}-nat" : "${var.environment}-nat-${count.index + 1}"
+      Name        = var.single_nat_gateway ? "${var.environment}-nat" : "${var.environment}-nat-${local.az_suffixes[count.index]}"
       Environment = var.environment
     },
     var.tags
@@ -135,7 +143,7 @@ resource "aws_route_table" "private" {
 
   tags = merge(
     {
-      Name        = var.single_nat_gateway ? "${var.environment}-private-rt" : "${var.environment}-private-rt-${count.index + 1}"
+      Name        = var.single_nat_gateway ? "${var.environment}-private-rt" : "${var.environment}-private-rt-${local.az_suffixes[count.index]}"
       Environment = var.environment
     },
     var.tags
