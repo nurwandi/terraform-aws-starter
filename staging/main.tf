@@ -56,6 +56,9 @@ module "vpc" {
   flow_logs_destination    = var.flow_logs_destination
   flow_logs_retention_days = var.flow_logs_retention_days
   flow_logs_s3_bucket_arn  = var.flow_logs_s3_bucket_arn
+
+  # EC2 Instance Connect Endpoint
+  enable_eic_endpoint = var.enable_eic_endpoint
 }
 
 ########## EKS ##########
