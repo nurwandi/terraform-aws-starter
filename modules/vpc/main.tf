@@ -47,9 +47,10 @@ resource "aws_subnet" "public" {
 
   tags = merge(
     {
-      Name        = "${var.environment}-public-subnet-${local.az_suffixes[count.index]}"
-      Environment = var.environment
-      Type        = "public"
+      Name                     = "${var.environment}-public-subnet-${local.az_suffixes[count.index]}"
+      Environment              = var.environment
+      Type                     = "public"
+      "kubernetes.io/role/elb" = "1" # Required for EKS external load balancers
     },
     var.tags
   )
@@ -66,9 +67,10 @@ resource "aws_subnet" "private" {
 
   tags = merge(
     {
-      Name        = "${var.environment}-private-subnet-${local.az_suffixes[count.index]}"
-      Environment = var.environment
-      Type        = "private"
+      Name                              = "${var.environment}-private-subnet-${local.az_suffixes[count.index]}"
+      Environment                       = var.environment
+      Type                              = "private"
+      "kubernetes.io/role/internal-elb" = "1" # Required for EKS internal load balancers
     },
     var.tags
   )
