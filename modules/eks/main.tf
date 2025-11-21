@@ -86,11 +86,19 @@ resource "aws_eks_cluster" "main" {
   role_arn = aws_iam_role.cluster.arn
   version  = var.cluster_version
 
+  # Must be false when Auto Mode is enabled
+  bootstrap_self_managed_addons = var.auto_mode_enabled ? false : true
+
   vpc_config {
     subnet_ids              = var.subnet_ids
     endpoint_private_access = var.cluster_endpoint_private_access
     endpoint_public_access  = var.cluster_endpoint_public_access
     public_access_cidrs     = var.cluster_endpoint_public_access_cidrs
+  }
+
+  # Required for Auto Mode
+  access_config {
+    authentication_mode = var.auto_mode_enabled ? "API_AND_CONFIG_MAP" : "CONFIG_MAP"
   }
 
   dynamic "encryption_config" {
@@ -216,6 +224,23 @@ resource "aws_iam_role_policy_attachment" "node_ebs_csi_policy" {
 
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.node[0].name
+}
+
+# Instance Profile for Managed Node Groups ONLY (NOT for Auto Mode)
+# EKS Auto Mode creates and manages its own instance profile
+resource "aws_iam_instance_profile" "node" {
+  count = !var.auto_mode_enabled && length(var.node_groups) > 0 ? 1 : 0
+
+  name = "${var.cluster_name}-node-role"
+  role = aws_iam_role.node[0].name
+
+  tags = merge(
+    {
+      Name        = "${var.cluster_name}-node-instance-profile"
+      Environment = var.environment
+    },
+    var.tags
+  )
 }
 
 ########## Managed Node Groups (only if auto_mode = false) ##########

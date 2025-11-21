@@ -116,7 +116,7 @@ resource "aws_route_table" "public" {
 
   tags = merge(
     {
-      Name        = "${var.environment}-public-rt"
+      Name        = "${var.environment}-public-route-table"
       Environment = var.environment
     },
     var.tags
@@ -143,7 +143,7 @@ resource "aws_route_table" "private" {
 
   tags = merge(
     {
-      Name        = var.single_nat_gateway ? "${var.environment}-private-rt" : "${var.environment}-private-rt-${local.az_suffixes[count.index]}"
+      Name        = var.single_nat_gateway ? "${var.environment}-private-route-table" : "${var.environment}-private-route-table-${local.az_suffixes[count.index]}"
       Environment = var.environment
     },
     var.tags
