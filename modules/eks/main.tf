@@ -33,7 +33,7 @@ resource "aws_iam_role" "cluster" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action = "sts:AssumeRole"
+      Action = ["sts:AssumeRole", "sts:TagSession"]
       Effect = "Allow"
       Principal = {
         Service = "eks.amazonaws.com"
@@ -50,6 +50,7 @@ resource "aws_iam_role" "cluster" {
   )
 }
 
+# Base policies (always attached)
 resource "aws_iam_role_policy_attachment" "cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.cluster.name
@@ -57,6 +58,35 @@ resource "aws_iam_role_policy_attachment" "cluster_policy" {
 
 resource "aws_iam_role_policy_attachment" "cluster_vpc_resource_controller" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.cluster.name
+}
+
+# Additional policies required for EKS Auto Mode
+resource "aws_iam_role_policy_attachment" "cluster_compute_policy" {
+  count = var.auto_mode_enabled ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSComputePolicy"
+  role       = aws_iam_role.cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "cluster_block_storage_policy" {
+  count = var.auto_mode_enabled ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSBlockStoragePolicy"
+  role       = aws_iam_role.cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "cluster_load_balancing_policy" {
+  count = var.auto_mode_enabled ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy"
+  role       = aws_iam_role.cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "cluster_networking_policy" {
+  count = var.auto_mode_enabled ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSNetworkingPolicy"
   role       = aws_iam_role.cluster.name
 }
 
@@ -183,7 +213,7 @@ resource "aws_iam_role" "node" {
       Action = "sts:AssumeRole"
       Effect = "Allow"
       Principal = {
-        Service = var.auto_mode_enabled ? "ec2.amazonaws.com" : "ec2.amazonaws.com"
+        Service = "ec2.amazonaws.com"
       }
     }]
   })
@@ -197,13 +227,37 @@ resource "aws_iam_role" "node" {
   )
 }
 
+# Policies for EKS Auto Mode nodes (minimal permissions)
+resource "aws_iam_role_policy_attachment" "node_worker_minimal_policy" {
+  count = var.auto_mode_enabled ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodeMinimalPolicy"
+  role       = aws_iam_role.node[0].name
+}
+
+resource "aws_iam_role_policy_attachment" "node_container_registry_pull_only" {
+  count = var.auto_mode_enabled ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+  role       = aws_iam_role.node[0].name
+}
+
+# Policies for Managed Node Groups (full permissions)
 resource "aws_iam_role_policy_attachment" "node_worker_policy" {
-  count = var.auto_mode_enabled || length(var.node_groups) > 0 ? 1 : 0
+  count = !var.auto_mode_enabled && length(var.node_groups) > 0 ? 1 : 0
 
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.node[0].name
 }
 
+resource "aws_iam_role_policy_attachment" "node_container_registry_policy" {
+  count = !var.auto_mode_enabled && length(var.node_groups) > 0 ? 1 : 0
+
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.node[0].name
+}
+
+# CNI Policy (for both Auto Mode and Managed Node Groups)
 resource "aws_iam_role_policy_attachment" "node_cni_policy" {
   count = var.auto_mode_enabled || length(var.node_groups) > 0 ? 1 : 0
 
@@ -211,16 +265,9 @@ resource "aws_iam_role_policy_attachment" "node_cni_policy" {
   role       = aws_iam_role.node[0].name
 }
 
-resource "aws_iam_role_policy_attachment" "node_container_registry_policy" {
-  count = var.auto_mode_enabled || length(var.node_groups) > 0 ? 1 : 0
-
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.node[0].name
-}
-
-# Additional policy for EBS CSI Driver (required for persistent volumes)
+# EBS CSI Driver policy (only for Managed Node Groups, Auto Mode handles storage internally)
 resource "aws_iam_role_policy_attachment" "node_ebs_csi_policy" {
-  count = (var.auto_mode_enabled || length(var.node_groups) > 0) && var.enable_ebs_csi_driver ? 1 : 0
+  count = !var.auto_mode_enabled && length(var.node_groups) > 0 && var.enable_ebs_csi_driver ? 1 : 0
 
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.node[0].name
@@ -381,9 +428,9 @@ data "aws_eks_addon_version" "kube_proxy" {
   most_recent        = true
 }
 
-# EBS CSI Driver
+# EBS CSI Driver (only for Managed Node Groups, Auto Mode handles storage via storage_config)
 resource "aws_eks_addon" "ebs_csi_driver" {
-  count = var.enable_ebs_csi_driver ? 1 : 0
+  count = !var.auto_mode_enabled && var.enable_ebs_csi_driver ? 1 : 0
 
   cluster_name                = aws_eks_cluster.main.name
   addon_name                  = "aws-ebs-csi-driver"
@@ -401,16 +448,16 @@ resource "aws_eks_addon" "ebs_csi_driver" {
 }
 
 data "aws_eks_addon_version" "ebs_csi_driver" {
-  count = var.enable_ebs_csi_driver ? 1 : 0
+  count = !var.auto_mode_enabled && var.enable_ebs_csi_driver ? 1 : 0
 
   addon_name         = "aws-ebs-csi-driver"
   kubernetes_version = aws_eks_cluster.main.version
   most_recent        = true
 }
 
-# IAM Role for EBS CSI Driver (IRSA)
+# IAM Role for EBS CSI Driver (IRSA) - only for Managed Node Groups
 resource "aws_iam_role" "ebs_csi_driver" {
-  count = var.enable_ebs_csi_driver ? 1 : 0
+  count = !var.auto_mode_enabled && var.enable_ebs_csi_driver ? 1 : 0
 
   name = "${var.cluster_name}-ebs-csi-driver-role"
 
@@ -441,7 +488,7 @@ resource "aws_iam_role" "ebs_csi_driver" {
 }
 
 resource "aws_iam_role_policy_attachment" "ebs_csi_driver" {
-  count = var.enable_ebs_csi_driver ? 1 : 0
+  count = !var.auto_mode_enabled && var.enable_ebs_csi_driver ? 1 : 0
 
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
   role       = aws_iam_role.ebs_csi_driver[0].name
