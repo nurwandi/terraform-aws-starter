@@ -1,0 +1,7 @@
+# S3 Backend Configuration
+# Copy this file to backend.tfvars and adjust the values
+
+bucket  = "" # ADJUST: Your S3 bucket name for Terraform state
+key     = "lensclause/terraform.tfstate" # ADJUST: Path to state file in S3
+region  = "" # ADJUST: AWS region where the S3 bucket is located
+profile = "" # ADJUST: AWS CLI profile name to use

@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadApplicationParameters",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParametersByPath"
+      ],
+      "Resource": [
+        "arn:aws:ssm:ap-southeast-3:*:parameter/backend/development/*",
+        "arn:aws:ssm:ap-southeast-3:*:parameter/frontend/development/*"
+      ]
+    },
+    {
+      "Sid": "DecryptSSMParameters",
+      "Effect": "Allow",
+      "Action": [
+        "kms:Decrypt"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "kms:ViaService": "ssm.ap-southeast-3.amazonaws.com"
+        }
+      }
+    }
+  ]
+}

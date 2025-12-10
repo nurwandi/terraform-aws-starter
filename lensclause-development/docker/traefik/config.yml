@@ -1,0 +1,142 @@
+# ============================================================
+# Traefik External Services Configuration
+# ============================================================
+# This file defines routing for services running on other servers
+# File Provider watches this file for changes and auto-reloads
+# ============================================================
+
+# ============================================================
+# HTTP ROUTING - Domain-based routing (HTTPS)
+# ============================================================
+# Production Lensclause Services
+# - Frontend: https://app.lensclause.com (SSL enabled)
+# - Backend API: https://app.lensclause.com/api (SSL enabled, path-based)
+# - Backend fallback: http://16.79.43.9:3001 (port-based, no SSL)
+# ============================================================
+
+http:
+  routers:
+    lensclause-backend:
+      rule: "Host(`app.lensclause.com`) && PathPrefix(`/api`)"
+      service: lensclause-backend-service
+      entryPoints:
+        - websecure
+      priority: 20
+      tls:
+        certResolver: letsencrypt
+
+    lensclause-frontend:
+      rule: "Host(`app.lensclause.com`)"
+      service: lensclause-frontend-service
+      entryPoints:
+        - websecure
+      priority: 10
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    lensclause-frontend-service:
+      loadBalancer:
+        servers:
+          - url: "http://10.3.11.111:3000"
+
+    lensclause-backend-service:
+      loadBalancer:
+        servers:
+          - url: "http://10.3.11.111:9000"
+
+# ============================================================
+# TCP PORT FORWARDING - Port-based access (HTTP only)
+# ============================================================
+# Access via IP:PORT (no domain, no SSL required)
+# Lensclause Services:
+# - Frontend: http://16.79.43.9:3000 (OR https://app.lensclause.com with SSL)
+# - Backend: http://16.79.43.9:3001 (port-based only, no domain)
+# Admin/Internal Services:
+# - MinIO Console: http://16.79.43.9:9001
+# - MinIO API: http://16.79.43.9:9000
+# - pgAdmin: http://16.79.43.9:5050
+# - RabbitMQ Management: http://16.79.43.9:15672
+# ============================================================
+
+tcp:
+  routers:
+    lensclause-frontend-tcp:
+      rule: HostSNI(`*`)
+      service: lensclause-frontend-tcp-service
+      entryPoints:
+        - lensclause-frontend
+
+    lensclause-backend-tcp:
+      rule: HostSNI(`*`)
+      service: lensclause-backend-tcp-service
+      entryPoints:
+        - lensclause-backend
+
+    minio-api-tcp:
+      rule: HostSNI(`*`)
+      service: minio-api-tcp-service
+      entryPoints:
+        - minio-api
+
+    minio-console-tcp:
+      rule: HostSNI(`*`)
+      service: minio-console-tcp-service
+      entryPoints:
+        - minio
+
+    pgadmin-console-tcp:
+      rule: HostSNI(`*`)
+      service: pgadmin-console-tcp-service
+      entryPoints:
+        - pgadmin
+
+    rabbitmq-console-tcp:
+      rule: HostSNI(`*`)
+      service: rabbitmq-console-tcp-service
+      entryPoints:
+        - rabbitmq
+
+  services:
+    lensclause-frontend-tcp-service:
+      loadBalancer:
+        servers:
+          - address: 10.3.11.111:3000
+
+    lensclause-backend-tcp-service:
+      loadBalancer:
+        servers:
+          - address: 10.3.11.111:9000
+
+    minio-api-tcp-service:
+      loadBalancer:
+        servers:
+          - address: 10.3.11.235:9000
+
+    minio-console-tcp-service:
+      loadBalancer:
+        servers:
+          - address: 10.3.11.235:9001
+
+    pgadmin-console-tcp-service:
+      loadBalancer:
+        servers:
+          - address: 10.3.11.18:5050
+
+    rabbitmq-console-tcp-service:
+      loadBalancer:
+        servers:
+          - address: 10.3.11.235:15672
+
+# ============================================================
+# INFRASTRUCTURE DETAILS
+# ============================================================
+# Traefik Server: i-0b27c9e69dd5453c9 (10.3.1.178 / 16.79.43.9)
+#   - SSL/TLS: Let's Encrypt (HTTP Challenge)
+#   - Ports: 80 (HTTP → redirect to HTTPS), 443 (HTTPS), 8080 (Dashboard)
+# Lensclause Application Server: i-05e468bc30ee057b6 (10.3.11.111) - Ubuntu 22.04 + Podman
+#   - Frontend: Port 3000, Backend: Port 9000
+#   - Replaces: i-000928b73cf71efa3 (10.3.11.7 - Amazon Linux 2023)
+# MinIO/RabbitMQ Server: i-0d37e65a83ae0c7ea (10.3.11.235)
+# PostgreSQL/Redis/MongoDB Server: i-05741c9bd8ee2ecab (10.3.11.18)
+# ============================================================

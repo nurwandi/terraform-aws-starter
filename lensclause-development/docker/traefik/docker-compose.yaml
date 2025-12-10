@@ -1,0 +1,34 @@
+services:
+  traefik:
+    image: traefik:v3.6.1
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 8080:8080
+      - 9000:9000    # MinIO API port forwarding
+      - 9001:9001    # MinIO Console port forwarding
+      - 5050:5050    # pgAdmin Console port forwarding
+      - 15672:15672  # RabbitMQ Management UI port forwarding
+      - 443:443
+    # environment:  # Not needed without Cloudflare/domain
+    #   CF_DNS_API_TOKEN_FILE: /run/secrets/cf_api_token # note using _FILE for docker secrets
+    #   # CF_DNS_API_TOKEN: ${CF_DNS_API_TOKEN} # if using .env
+    #   TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS} # Basic auth credential to see the dashboard
+    # secrets:  # Not needed without Cloudflare
+    #   - cf_api_token
+    # env_file: .env # use .env - not needed for now
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/traefik.yml:ro
+      - ./config.yml:/config.yml:ro
+      - ./acme.json:/acme.json
+
+networks:
+  proxy:
+    external: true

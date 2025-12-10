@@ -1,0 +1,53 @@
+api:
+  dashboard: true
+  debug: true
+  insecure: true
+
+entryPoints:
+  web:
+    address: ":80"      # HTTP traffic
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"     # HTTPS traffic
+    http:
+      tls:
+        certResolver: letsencrypt
+  traefik:
+    address: ":8080"    # Traefik Dashboard
+  lensclause-frontend:
+    address: ":3000"    # Lensclause Frontend - Port-based access
+  lensclause-backend:
+    address: ":3001"    # Lensclause Backend - Port-based access
+  minio:
+    address: ":9001"    # MinIO Console
+  minio-api:
+    address: ":9000"    # MinIO API
+  pgadmin:
+    address: ":5050"    # pgAdmin Console
+  rabbitmq:
+    address: ":15672"   # RabbitMQ Management UI
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: proxy
+
+  file:
+    filename: /config.yml
+    watch: true  # Auto-reload when config.yml changes
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: qolbi.yunus@insignia.co.id
+      storage: acme.json
+      # caServer: https://acme-staging-v02.api.letsencrypt.org/directory # staging (testing)
+      caServer: https://acme-v02.api.letsencrypt.org/directory # production
+      httpChallenge:
+        entryPoint: web
