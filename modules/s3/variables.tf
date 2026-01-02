@@ -57,7 +57,8 @@ variable "lifecycle_rules" {
     standard_ia_days                = number
     glacier_ir_days                 = number
     deep_archive_days               = number
-    expiration_days                 = number
+    expiration_days                 = optional(number, null)
+    noncurrent_expiration_days      = optional(number, null)
     abort_incomplete_multipart_days = number
   })
 
@@ -67,7 +68,8 @@ variable "lifecycle_rules" {
     standard_ia_days                = 30
     glacier_ir_days                 = 90
     deep_archive_days               = 365
-    expiration_days                 = 2555
+    expiration_days                 = null
+    noncurrent_expiration_days      = null
     abort_incomplete_multipart_days = 7
   }
 
@@ -75,9 +77,9 @@ variable "lifecycle_rules" {
     condition = (
       var.lifecycle_rules.standard_ia_days < var.lifecycle_rules.glacier_ir_days &&
       var.lifecycle_rules.glacier_ir_days < var.lifecycle_rules.deep_archive_days &&
-      var.lifecycle_rules.deep_archive_days < var.lifecycle_rules.expiration_days
+      (var.lifecycle_rules.expiration_days == null || var.lifecycle_rules.deep_archive_days < var.lifecycle_rules.expiration_days)
     )
-    error_message = "Lifecycle transition days must be in ascending order: Standard-IA < Glacier IR < Deep Archive < Expiration."
+    error_message = "Lifecycle transition days must be in ascending order: Standard-IA < Glacier IR < Deep Archive < Expiration (if set)."
   }
 
   validation {
@@ -88,6 +90,11 @@ variable "lifecycle_rules" {
   validation {
     condition     = var.lifecycle_rules.abort_incomplete_multipart_days >= 1
     error_message = "Abort incomplete multipart upload days must be at least 1."
+  }
+
+  validation {
+    condition     = var.lifecycle_rules.noncurrent_expiration_days == null || var.lifecycle_rules.noncurrent_expiration_days >= 1
+    error_message = "Noncurrent version expiration days must be at least 1 (or null to disable)."
   }
 }
 

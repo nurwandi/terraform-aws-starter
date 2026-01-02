@@ -90,9 +90,22 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
       storage_class = "DEEP_ARCHIVE"
     }
 
-    # Expire objects after specified days
-    expiration {
-      days = var.lifecycle_rules.expiration_days
+    # Expire objects after specified days (optional)
+    dynamic "expiration" {
+      for_each = var.lifecycle_rules.expiration_days != null ? [1] : []
+
+      content {
+        days = var.lifecycle_rules.expiration_days
+      }
+    }
+
+    # Cleanup noncurrent versions (only if versioning enabled AND noncurrent_expiration_days is set)
+    dynamic "noncurrent_version_expiration" {
+      for_each = var.versioning_enabled && var.lifecycle_rules.noncurrent_expiration_days != null ? [1] : []
+
+      content {
+        noncurrent_days = var.lifecycle_rules.noncurrent_expiration_days
+      }
     }
 
     # Abort incomplete multipart uploads

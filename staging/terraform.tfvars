@@ -153,7 +153,7 @@ ec2_associate_public_ip   = false
 
 s3_bucket_name         = "my-temporary-bucket-03012026" # TODO: Must be globally unique
 s3_force_destroy       = false                          # TODO: true for dev/test (allows deletion with objects)
-s3_versioning_enabled  = false                          # TODO: true/false (recommended: true for production)
+s3_versioning_enabled  = true                           # TODO: true/false (recommended: true for production)
 s3_block_public_access = true                           # Keep true for security
 s3_kms_master_key_id   = null                           # OPTIONAL: Specify KMS key ARN for KMS encryption, null for AES256
 
@@ -164,7 +164,8 @@ s3_lifecycle_rules = {
   standard_ia_days                = 30   # TODO: Days to transition to Standard-IA (min: 30)
   glacier_ir_days                 = 90   # TODO: Days to transition to Glacier Instant Retrieval
   deep_archive_days               = 365  # TODO: Days to transition to Deep Archive (cost-optimized: 365)
-  expiration_days                 = 2555 # TODO: Days to delete objects (7 years for compliance)
+  expiration_days                 = null # TODO: Days to delete objects (null = keep forever, 2555 = 7 years compliance)
+  noncurrent_expiration_days      = null # TODO: Days to delete noncurrent versions (null = keep forever, 90 = recommended)
   abort_incomplete_multipart_days = 7    # TODO: Days to cleanup incomplete multipart uploads
 }
 

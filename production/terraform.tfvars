@@ -162,7 +162,8 @@ s3_lifecycle_rules = {
   standard_ia_days                = 30   # TODO: Days to transition to Standard-IA (min: 30)
   glacier_ir_days                 = 90   # TODO: Days to transition to Glacier Instant Retrieval
   deep_archive_days               = 365  # TODO: Days to transition to Deep Archive (cost-optimized: 365)
-  expiration_days                 = 2555 # TODO: Days to delete objects (7 years for compliance)
+  expiration_days                 = null # TODO: Days to delete objects (null = keep forever, 2555 = 7 years compliance)
+  noncurrent_expiration_days      = null # TODO: Days to delete noncurrent versions (null = keep forever, 90 = recommended)
   abort_incomplete_multipart_days = 7    # TODO: Days to cleanup incomplete multipart uploads
 }
 

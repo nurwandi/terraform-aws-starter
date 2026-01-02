@@ -512,7 +512,8 @@ variable "s3_lifecycle_rules" {
     standard_ia_days                = number
     glacier_ir_days                 = number
     deep_archive_days               = number
-    expiration_days                 = number
+    expiration_days                 = optional(number, null)
+    noncurrent_expiration_days      = optional(number, null)
     abort_incomplete_multipart_days = number
   })
   default = {
@@ -521,7 +522,8 @@ variable "s3_lifecycle_rules" {
     standard_ia_days                = 30
     glacier_ir_days                 = 90
     deep_archive_days               = 365
-    expiration_days                 = 2555
+    expiration_days                 = null
+    noncurrent_expiration_days      = null
     abort_incomplete_multipart_days = 7
   }
 }
