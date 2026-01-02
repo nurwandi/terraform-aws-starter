@@ -168,3 +168,19 @@ module "ec2" {
   # Network
   associate_public_ip = var.ec2_associate_public_ip
 }
+
+########## S3 Bucket ##########
+###############################
+module "s3" {
+  source = "../modules/s3"
+
+  environment         = local.environment
+  bucket_name         = var.s3_bucket_name
+  force_destroy       = var.s3_force_destroy
+  versioning_enabled  = var.s3_versioning_enabled
+  block_public_access = var.s3_block_public_access
+  kms_master_key_id   = var.s3_kms_master_key_id
+  lifecycle_rules     = var.s3_lifecycle_rules
+
+  tags = var.s3_tags
+}

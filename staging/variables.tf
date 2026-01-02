@@ -470,3 +470,64 @@ variable "ec2_associate_public_ip" {
   type        = bool
   default     = false
 }
+
+########## S3 Configuration ##########
+#######################################
+
+variable "s3_bucket_name" {
+  description = "Name of the S3 bucket (must be globally unique)"
+  type        = string
+  default     = ""
+}
+
+variable "s3_force_destroy" {
+  description = "Allow deletion of bucket with objects (use with caution)"
+  type        = bool
+  default     = false
+}
+
+variable "s3_versioning_enabled" {
+  description = "Enable versioning on S3 bucket"
+  type        = bool
+  default     = false
+}
+
+variable "s3_block_public_access" {
+  description = "Block all public access to the bucket"
+  type        = bool
+  default     = true
+}
+
+variable "s3_kms_master_key_id" {
+  description = "KMS key ID for encryption (leave null for AES256)"
+  type        = string
+  default     = null
+}
+
+variable "s3_lifecycle_rules" {
+  description = "Lifecycle configuration for S3 bucket objects"
+  type = object({
+    enabled                         = bool
+    filter_prefix                   = string
+    standard_ia_days                = number
+    glacier_ir_days                 = number
+    deep_archive_days               = number
+    expiration_days                 = number
+    abort_incomplete_multipart_days = number
+  })
+  default = {
+    enabled                         = true
+    filter_prefix                   = ""
+    standard_ia_days                = 30
+    glacier_ir_days                 = 90
+    deep_archive_days               = 365
+    expiration_days                 = 2555
+    abort_incomplete_multipart_days = 7
+  }
+}
+
+variable "s3_tags" {
+  description = "Additional tags for the S3 bucket"
+  type        = map(string)
+  default     = {}
+}
