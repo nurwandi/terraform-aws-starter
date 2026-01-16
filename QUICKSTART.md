@@ -89,7 +89,7 @@ locals {
   environment = "staging"
   region      = "us-east-1"  # ⚠️ Must match backend.tfvars region
   profile     = "default"    # ⚠️ Must match backend.tfvars profile (or your AWS profile)
-  
+
   # ... rest of locals
 }
 ```

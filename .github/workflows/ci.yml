@@ -91,6 +91,35 @@ jobs:
           format: lovely
           additional_args: --minimum-severity MEDIUM
 
+      - name: Run Checkov Security Scan
+        id: checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          quiet: true
+          soft_fail: true
+          framework: terraform
+          output_format: cli
+          download_external_modules: false
+
+      - name: Run Trivy IaC Scan
+        id: trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'
+          format: 'table'
+        continue-on-error: true
+
+      - name: Run TruffleHog Secret Scan
+        id: trufflehog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
+        continue-on-error: true
+
       - name: Comment PR with Results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -100,17 +129,23 @@ jobs:
             const validateStatus = '${{ steps.validate_modules.outcome }}';
             const tflintStatus = '${{ steps.tflint.outcome }}';
             const tfsecStatus = '${{ steps.tfsec.outcome }}';
+            const checkovStatus = '${{ steps.checkov.outcome }}';
+            const trivyStatus = '${{ steps.trivy.outcome }}';
+            const trufflehogStatus = '${{ steps.trufflehog.outcome }}';
 
             let comment = '## Terraform CI Results\n\n';
             comment += `| Check | Status |\n`;
             comment += `|-------|--------|\n`;
-            comment += `| 🎨 Format | ${formatStatus === 'success' ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| ✅ Validation | ${validateStatus === 'success' ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| 🔍 TFLint | ${tflintStatus === 'success' ? '✅ Passed' : '⚠️ Warnings'} |\n`;
-            comment += `| 🔒 TFSec | ${tfsecStatus === 'success' ? '✅ Passed' : '⚠️ Issues Found'} |\n`;
+            comment += `| Format | ${formatStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'} |\n`;
+            comment += `| Validation | ${validateStatus === 'success' ? ':white_check_mark: Passed' : ':x: Failed'} |\n`;
+            comment += `| TFLint | ${tflintStatus === 'success' ? ':white_check_mark: Passed' : ':warning: Warnings'} |\n`;
+            comment += `| TFSec | ${tfsecStatus === 'success' ? ':white_check_mark: Passed' : ':warning: Issues Found'} |\n`;
+            comment += `| Checkov | ${checkovStatus === 'success' ? ':white_check_mark: Passed' : ':warning: Issues Found'} |\n`;
+            comment += `| Trivy | ${trivyStatus === 'success' ? ':white_check_mark: Passed' : ':warning: Issues Found'} |\n`;
+            comment += `| TruffleHog | ${trufflehogStatus === 'success' ? ':white_check_mark: Passed' : ':warning: Secrets Detected'} |\n`;
 
             if (formatStatus !== 'success') {
-              comment += '\n### ❌ Format Issues\n';
+              comment += '\n### :x: Format Issues\n';
               comment += 'Run `terraform fmt -recursive` to fix formatting issues.\n';
             }
 

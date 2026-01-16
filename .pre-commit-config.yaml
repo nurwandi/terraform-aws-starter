@@ -1,0 +1,47 @@
+# Pre-commit hooks for Terraform
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.96.1
+    hooks:
+      - id: terraform_fmt
+      - id: terraform_validate
+        args:
+          - --hook-config=--retry-once-with-cleanup=true
+      - id: terraform_tflint
+        args:
+          - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+      - id: terraform_tfsec
+        args:
+          - --args=--config-file=__GIT_WORKING_DIR__/.tfsec.yml
+      - id: terraform_checkov
+        args:
+          - --args=--quiet
+          - --args=--compact
+      - id: terraform_trivy
+        args:
+          - --args=--severity HIGH,CRITICAL
+          - --args=--exit-code 0
+
+  # TruffleHog - uses system binary to avoid Go compilation issues
+  # Install: brew install trufflehog (macOS) or see https://github.com/trufflesecurity/trufflehog#installation
+  - repo: local
+    hooks:
+      - id: trufflehog
+        name: TruffleHog Secret Scan
+        entry: trufflehog git file://. --since-commit HEAD --only-verified --fail
+        language: system
+        stages: [pre-commit, pre-push]
+        pass_filenames: false
